@@ -10,13 +10,9 @@ import {
   Image,
 } from 'react-native';
 import {Actions} from 'react-native-router-flux';
-const {width, height} = Dimensions.get('window');
-const apiPrefix = 'https://accounts.spotify.com/api';
-const apiPrefix1 = 'https://api.spotify.com/v1';
-const base64credentials =
-  'OGNmNTM4MGY1ODhjNGVhMTg4NDk2ZTI1NGVkNjM3NjA6MjZjZjkxMTg2ZDdlNDBhMWI1ZmVlY2Y0NDlmNzk4MWI=';
-const q = 'latest';
-import {colors, images, commonStyles, strings, fonts} from '../themes';
+import {getTracks} from '../helper/api';
+const {width} = Dimensions.get('window');
+import {images} from '../themes';
 
 class SecondScreen extends React.Component {
   constructor(props) {
@@ -35,40 +31,21 @@ class SecondScreen extends React.Component {
         state: {params},
       },
     } = this.props;
-    const res = await fetch(`${apiPrefix}/token`, {
-      method: 'POST',
-      headers: {
-        Authorization: `Basic ${base64credentials}`,
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: 'grant_type=client_credentials',
-    });
-    const json = await res.json();
-    const newToken = json.access_token;
-    const uri = `https://api.spotify.com/v1/tracks/${params.selectedIds[0]}`;
-    const res1 = await fetch(uri, {
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${newToken}`,
-      },
-    });
-    const json1 = await res1.json();
-    const {album} = json1;
-    let itemsTracks = [
-      {
+    const json1 = await getTracks(params.selectedIds);
+    const {tracks} = json1;
+    let itemsTracks = tracks.map((item) => {
+      const {album} = item;
+      return {
         id: album.id,
         title: album.name,
         imageUri: album.images ? album.images[0].url : undefined,
-        data: json1,
-      },
-    ];
+        data: item,
+      };
+    });
     this.setState({arrayMusicLanugauge: itemsTracks});
   }
 
-  componentWillUnmount() {}
-
   _renderItemsCategories(item, index) {
-    let calculationWidth = width / 3 - 60;
     return (
       <TouchableOpacity
         activeOpacity={0.9}
@@ -162,7 +139,6 @@ class SecondScreen extends React.Component {
                 padding: 5,
                 textAlign: 'center',
               }}>
-              Choose 3 or more artist you like.
             </Text>
           </View>
           <FlatList

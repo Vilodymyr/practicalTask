@@ -7,7 +7,6 @@
  */
 
 import React from 'react';
-import apiCall from './api';
 import {Scene, Router, Stack} from 'react-native-router-flux';
 import FirstScreen from './src/Container/FirstScreen';
 import SecondScreen from './src/Container/SecondScreen';
